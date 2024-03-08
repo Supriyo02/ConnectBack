@@ -1,4 +1,5 @@
 "use client";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -7,8 +8,14 @@ export default function NavigationCard({ children }) {
     "flex md:gap-3 gap-1 py-2 bg-SocialBlue text-white md:-mx-4 md:px-4 px-2 mx-2 text-sm md:text-md rounded-md shadow-md shadow-gray-400";
   const inactiveElements =
     "flex text-sm md:text-md md:gap-3 mx-1 gap-1 px-3.5 py-2 hover:bg-blue-300 hover:bg-opacity-40 rounded-md transition-all hover:shadow-sm hover:shadow-gray-400 hover:text-base hover:scale-110";
-
   const pathname = usePathname();
+  
+  const supabase = useSupabaseClient();
+  async function logout(){
+    await supabase.auth.signOut();
+  }
+  
+  
   return (
     <div className="px-2 md:py-3 py-1 flex md:block justify-between shadow-md shadow-gray-300 md:shadow-none">
       <h2 className="text-gray-500 font-bold p-3 hidden md:block">ConnectX</h2>
@@ -122,7 +129,8 @@ export default function NavigationCard({ children }) {
         Notifications
         </span>
       </Link>
-      <Link className={inactiveElements} href="/login">
+      <button onClick={logout} className="w-full">
+        <span className={inactiveElements}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -140,7 +148,8 @@ export default function NavigationCard({ children }) {
         <span className="hidden md:block">
         Logout
         </span>
-      </Link>
+        </span>
+      </button>
     </div>
   );
 }

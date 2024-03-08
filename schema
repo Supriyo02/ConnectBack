@@ -1,0 +1,12 @@
+{
+    "iss": "https://accounts.google.com",
+    "sub": "107061241646578015818",
+    "name": "Supriyo Ghosh",
+    "email": "supriyoghosh1607@gmail.com",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocKJDTvAedKvSURrt-tUgaPYhIYZPE5k337jF0T4seZJg74=s96-c",
+    "full_name": "Supriyo Ghosh",
+    "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocKJDTvAedKvSURrt-tUgaPYhIYZPE5k337jF0T4seZJg74=s96-c",
+    "provider_id": "107061241646578015818",
+    "email_verified": true,
+    "phone_verified": false
+}
