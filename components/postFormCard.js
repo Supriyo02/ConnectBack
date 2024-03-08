@@ -1,13 +1,49 @@
 import Card from "./card";
 import Avatar from "./avatar";
+import { useEffect, useState } from "react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 
 export default function postFormCard() {
+
+    const [content,setContent] = useState('');
+    const [profile,setProfile] = useState(null);
+    const session = useSession();
+    const supabase = useSupabaseClient();
+    useEffect(()=>{
+        // alert(session.user.id);
+        supabase.from('profiles')
+        .select()
+        .eq('id', session.user.id)
+        .then(result=>{
+            if(result.data.length){
+                setProfile(result.data[0]);
+            }
+        })
+    },[])
+
+    function createPost(){
+        supabase.from('posts').insert({
+            author: session.user.id,
+            content,
+        }).then(response=>{
+            if(!response.error){
+                setContent('');
+                alert('Post Created');
+            }
+        });
+    }
+
+
     return (
         <Card>
             <div className="flex gap-4">
-                <Avatar />
+                <Avatar url={profile?.avatar}/>
                 <div className="w-full p-1">
-                    <textarea className="w-full h-18 p-2" placeholder="What's on your mind?" />
+                    {profile && (
+                        <textarea value={content} 
+                        onChange={e=> setContent(e.target.value)} 
+                        className="w-full h-18 p-2" placeholder={`What's on your mind, ${profile?.name.split(' ')[0]}?`} />
+                    )}     
                 </div>
             </div>
             <div className="md:px-4 px-2 pb-4 flex md:gap-4 gap-1 items-center">
@@ -37,7 +73,7 @@ export default function postFormCard() {
                 </button>
                 </div>
                 <div className="grow text-right">
-                    <button className="rounded-md bg-blue-600 text-white p-1">Share</button>
+                    <button onClick={createPost} className="rounded-md bg-blue-600 text-white p-1">Share</button>
                 </div>
             </div>
         </Card>
