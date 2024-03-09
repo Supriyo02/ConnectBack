@@ -2,28 +2,40 @@
 import Card from "./card";
 import Avatar from "./avatar";
 import ClickOutHandler from "react-clickout-handler";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import ReactTimeAgo from "react-time-ago";
+import { UserContext } from "./contexts/UserContext";
 
-const Postcard = () => {
+export default function Postcard ({content, created_at, profiles:authorProfile}) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const inactiveElements =
     "flex gap-2 p-2 hover:bg-blue-300 hover:bg-opacity-40 rounded-md hover:-mx-2 transition-all hover:shadow-sm hover:shadow-gray-400 hover:text-base";
+  const {profile:myProfile} = useContext(UserContext);
+
+
   return (
     <Card>
       <div className="flex pt-3 px-2 items-center grow">
         <Link href="/profile">
             <span className="cursor-pointer">
-          <Avatar />
+          <Avatar url={authorProfile.avatar}/>
           </span>
         </Link>
         <div className="grow">
           <p className="text-black-600 text-md">
-            <Link href={"/profile"}><span className="font-semibold hover:underline">Anushka Dey</span></Link> shared a{" "}
-            <a href="#" className="font-semibold">photo</a>
+            <Link href={"/profile"}>
+              <span className="font-semibold hover:underline">
+              {authorProfile.name}{" "}
+              </span>
+              </Link> 
+              shared a{" "}
+            <a href="#" className="font-semibold">post</a>
           </p>
-          <p className="text-gray text-sm">two hours ago</p>
+          <p className="text-gray text-sm">
+            <ReactTimeAgo date={created_at} />
+          </p>
         </div>
         <div className="relative">
           <button
@@ -146,10 +158,7 @@ const Postcard = () => {
       </div>
       <div className="py-2 px-5">
         <p className="text-sm">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
+          {content}
         </p>
       </div>
       <div className="px-5 py-2">
@@ -213,7 +222,7 @@ const Postcard = () => {
         </div>
       </div>
       <div className="flex mt-2 pb-4">
-        <Avatar />
+        <Avatar url={myProfile?.avatar} />
         <div className="flex w-full pr-3 h-12 pt-2 gap-1">
           <div className=" w-11/12">
           <textarea
@@ -248,4 +257,4 @@ const Postcard = () => {
   );
 };
 
-export default Postcard;
+// export default Postcard;
