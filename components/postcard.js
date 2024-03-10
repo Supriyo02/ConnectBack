@@ -8,7 +8,7 @@ import Image from "next/image";
 import ReactTimeAgo from "react-time-ago";
 import { UserContext } from "./contexts/UserContext";
 
-export default function Postcard ({content, created_at, profiles:authorProfile}) {
+export default function Postcard ({content, created_at, photos, profiles:authorProfile}) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const inactiveElements =
     "flex gap-2 p-2 hover:bg-blue-300 hover:bg-opacity-40 rounded-md hover:-mx-2 transition-all hover:shadow-sm hover:shadow-gray-400 hover:text-base";
@@ -162,11 +162,19 @@ export default function Postcard ({content, created_at, profiles:authorProfile})
         </p>
       </div>
       <div className="px-5 py-2">
-        <img
-          className="rounded-md overflow-hidden"
-          src="https://images.unsplash.com/photo-1561909381-3d716364ad47?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2063&q=80"
-          alt=""
-        />
+        {photos?.length >0 && (
+          <div className="flex gap-4 items-center">
+          {photos.map(photo=>(
+            <div>
+              <img
+            className="rounded-md overflow-hidden"
+            src= {photo}
+            alt=""
+          />
+            </div> 
+          ))}
+          </div>
+        )}
       </div>
       <div className="flex gap-6 pl-6 items-center">
         <div className="flex gap-1">
