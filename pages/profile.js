@@ -7,34 +7,67 @@ import FriendInfo from "../components/friendinfo";
 import { useRouter } from "next/router";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import Cover from "../components/Cover";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const [profile, setProfile] = useState(null);
+  const userId = router.query.id;
+  const supabase = useSupabaseClient();
+
+  useEffect(()=>{
+    if(!userId){
+      return;
+    }
+    fetchUser();
+  },[userId]);
+
+  function fetchUser(){
+    supabase.from('profiles')
+    .select()
+    .eq('id',userId)
+    .then(result=>{
+      if(result.error){
+        throw result.error;
+      }
+      if(result.data){
+        setProfile(result.data[0]);
+      }
+    })
+  }
+
   const { asPath: pathname } = router;
   const isPosts = pathname.includes("posts");
   const isAbout = pathname.includes("/about") || pathname === "/profile";
   const isFriends = pathname.includes("/friends");
   const isPhotos = pathname.includes("/photos");
-
+  const session = useSession();
   let activeTabClasses =
     "flex gap-1 content-center bg-blue-500 bg-opacity-20 rounded-t-md font-bold px-2 border-b-4 border-b-blue-500";
   let tabClasses =
     "flex gap-1 content-center border-b-4 border-b-white hover:border-b-blue-100 px-2 hover:bg-blue-300 hover:bg-opacity-20 hover:rounded-t-md";
 
+  const isMyUser = userId === session?.user?.id;
+
+
   return (
     <Layout>
       <Card noPadding={true}>
         <div className=" relative overflow-hidden rounded-md">
-          <div className=" h-40 overflow-hidden flex justify-center place-items-start">
-            <img src="/cover.jpg" />
-          </div>
-          <div className="absolute top-28 left-2">
-            <Avatar size={"lg"} />
+          <Cover url={profile?.cover} editable={isMyUser} onChange={fetchUser}/>
+          <div className="absolute top-28 left-2 z-20">
+            {profile && (
+              <Avatar url={profile.avatar} size={"lg"} />
+            )}
           </div>
           <div className=" md:pb-6 md:pt-6 pb-12 md:pl-44 pl-36">
-            <h2 className=" ml-4 text-3xl font-bold">Anushka Dey</h2>
+            <h2 className=" ml-4 text-3xl font-bold">
+              {profile?.name}
+            </h2>
             <div className=" text-gray-500 ml-4 leading-4 text-sm">
-              Sector-V, Kolkata
+              {profile?.place}
             </div>
           </div>
           <div className="md:pt-6 md:pl-12 pl-8 pb-0.5 flex sm:gap-6 gap-10 items-center">

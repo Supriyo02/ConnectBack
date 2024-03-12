@@ -18,16 +18,16 @@ export default function Postcard ({content, created_at, photos, profiles:authorP
   return (
     <Card>
       <div className="flex pt-3 px-2 items-center grow">
-        <Link href="/profile">
+        <Link href={'/profile/'+authorProfile?.id} >
             <span className="cursor-pointer">
-          <Avatar url={authorProfile.avatar}/>
+          <Avatar url={authorProfile?.avatar}/>
           </span>
         </Link>
         <div className="grow">
           <p className="text-black-600 text-md">
-            <Link href={"/profile"}>
+            <Link href={'/profile/'+authorProfile?.id}>
               <span className="font-semibold hover:underline">
-              {authorProfile.name}{" "}
+              {authorProfile?.name}{" "}
               </span>
               </Link> 
               shared a{" "}
