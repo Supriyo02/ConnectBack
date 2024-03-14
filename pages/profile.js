@@ -14,28 +14,47 @@ import Cover from "../components/Cover";
 export default function ProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState(null);
+  const [name, setName] = useState('');
+  const [place, setPlace] = useState('');
+  const [editMode, setEditMode] = useState(false);
   const userId = router.query.id;
   const supabase = useSupabaseClient();
 
-  useEffect(()=>{
-    if(!userId){
+  useEffect(() => {
+    if (!userId) {
       return;
     }
     fetchUser();
-  },[userId]);
+  }, [userId]);
 
-  function fetchUser(){
-    supabase.from('profiles')
-    .select()
-    .eq('id',userId)
-    .then(result=>{
-      if(result.error){
-        throw result.error;
-      }
-      if(result.data){
-        setProfile(result.data[0]);
-      }
+  function fetchUser() {
+    supabase
+      .from("profiles")
+      .select()
+      .eq("id", userId)
+      .then((result) => {
+        if (result.error) {
+          throw result.error;
+        }
+        if (result.data) {
+          setProfile(result.data[0]);
+        }
+      });
+  }
+
+  function saveProfile(){
+    supabase.from('profiles').update({
+      name,
+      place,
     })
+    .eq('id', session.user.id)
+    .then(result=>{
+      if(!result.error){
+        setProfile(prev=>{ 
+          return {...prev,name,place}});
+      }
+      setEditMode(false);
+    });
   }
 
   const { asPath: pathname } = router;
@@ -51,23 +70,83 @@ export default function ProfilePage() {
 
   const isMyUser = userId === session?.user?.id;
 
-
   return (
     <Layout>
       <Card noPadding={true}>
         <div className=" relative overflow-hidden rounded-md">
-          <Cover url={profile?.cover} editable={isMyUser} onChange={fetchUser}/>
+          <Cover
+            url={profile?.cover}
+            editable={isMyUser}
+            onChange={fetchUser}
+          />
           <div className="absolute top-28 left-2 z-20">
             {profile && (
-              <Avatar url={profile.avatar} size={"lg"} />
+              <Avatar
+                url={profile.avatar}
+                size={"lg"}
+                editable={isMyUser}
+                onChange={fetchUser}
+              />
             )}
           </div>
-          <div className=" md:pb-6 md:pt-6 pb-12 md:pl-44 pl-36">
-            <h2 className=" ml-4 text-3xl font-bold">
-              {profile?.name}
-            </h2>
-            <div className=" text-gray-500 ml-4 leading-4 text-sm">
-              {profile?.place}
+          <div className=" md:pb-6 md:pt-6 pt-3 pb-12 md:pl-44 pl-36 flex justify-between">
+            <div>
+            {editMode && (
+                  <div className="ml-4 md:text-3xl text-md font-bold">
+                    <input type="text" 
+                    placeholder={'Your name'} 
+                    value={name} 
+                    className=" md:max-w-72 max-w-32 border rounded-md p-1"
+                    onChange={ev=>setName(ev.target.value)}/>
+                  </div>
+                )}
+              {!editMode && (
+                <h2 className="ml-4 md:text-3xl text-md font-bold">
+                {profile?.name}
+              </h2>
+              )}  
+              {!editMode &&(
+                <div className=" text-gray-500 ml-4 leading-4 md:text-sm text-xs">
+                {profile?.place || 'Kolkata'}
+              </div>
+              )}
+              {editMode && (
+                <div className="ml-4">
+                <input type="text" 
+                placeholder={'Your location'} 
+                value={place} 
+                className=" md:max-w-72 max-w-32 border rounded-md p-1 md:text-sm text-xs"
+                onChange={ev=>setPlace(ev.target.value)}/>
+                </div>
+              )}
+              
+            </div>
+            <div className="mr-6">
+              {isMyUser && !editMode &&(
+                <button onClick={()=>{
+                  setEditMode(true);
+                  setName(profile.name);
+                  setPlace(profile.place);
+                  }} 
+                className=" flex gap-1 shadow-gray-400 shadow-md rounded-md px-2 py-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                 <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+               </svg>
+                 Edit
+                </button>
+              )}
+              <div className="text-right">
+              {isMyUser && editMode &&(
+                <button onClick={saveProfile} className="md:text-base text-xs flex gap-1 shadow-gray-400 shadow-sm rounded-md px-2 py-0.5">
+                  Save
+                </button>
+              )}
+              {isMyUser && editMode &&(
+                <button onClick={()=>setEditMode(false)} className=" md:text-base text-xs flex gap-1 shadow-gray-400 mt-1 shadow-sm rounded-md px-2 py-0.5">
+                  Cancel
+                </button>
+              )}
+              </div>
             </div>
           </div>
           <div className="md:pt-6 md:pl-12 pl-8 pb-0.5 flex sm:gap-6 gap-10 items-center">
@@ -222,39 +301,39 @@ export default function ProfilePage() {
       {isPhotos && (
         <div>
           <Card>
-          <div className=" grid md:grid-cols-2 gap-3 md:px-3 md:py-3 px-4 py-3">
-            <div className=" rounded-sm overflow-hidden  h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1571679654681-ba01b9e1e117?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" />
+            <div className=" grid md:grid-cols-2 gap-3 md:px-3 md:py-3 px-4 py-3">
+              <div className=" rounded-sm overflow-hidden  h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1571679654681-ba01b9e1e117?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1561909381-3d716364ad47?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8a29sa2F0YXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=900&q=60" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://media.istockphoto.com/id/1179806246/photo/holi-and-durga-puja-festival-in-indian-married-and-unmarried-indian-women-playing-with.jpg?s=612x612&w=0&k=20&c=OYuG7feijVKCkwKQ-O4gFABIYg9JmgaoLUQrbHr-utU=" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1599936541117-d032c94719a7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1558431382-27e303142255?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1634065611106-baf90d226d7f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1599831013079-1aa9b2092f08?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1900&q=80" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1470163395405-d2b80e7450ed?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" />
+              </div>
+              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+                <img src="https://images.unsplash.com/photo-1630880276407-7e0c38d4df24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80" />
+              </div>
             </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1561909381-3d716364ad47?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8a29sa2F0YXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=900&q=60" />
-            </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://media.istockphoto.com/id/1179806246/photo/holi-and-durga-puja-festival-in-indian-married-and-unmarried-indian-women-playing-with.jpg?s=612x612&w=0&k=20&c=OYuG7feijVKCkwKQ-O4gFABIYg9JmgaoLUQrbHr-utU=" />
-            </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1599936541117-d032c94719a7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" />
-            </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1558431382-27e303142255?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" />
-            </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1536421469767-80559bb6f5e1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" />
-            </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1634065611106-baf90d226d7f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80" />
-            </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1599831013079-1aa9b2092f08?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1900&q=80" />
-            </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1470163395405-d2b80e7450ed?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" />
-            </div>
-            <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-              <img src="https://images.unsplash.com/photo-1630880276407-7e0c38d4df24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80" />
-            </div>
-          </div>
-        </Card>
+          </Card>
         </div>
       )}
     </Layout>
