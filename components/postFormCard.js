@@ -5,7 +5,7 @@ import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { UserContext } from "./contexts/UserContext";
 import Preloader from "./preloader";
 
-export default function postFormCard({ onPost }) {
+export default function PostFormCard({ onPost }) {
   const [content, setContent] = useState("");
   const [uploads, setUploads] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -80,7 +80,7 @@ export default function postFormCard({ onPost }) {
       {uploads.length > 0 && (
         <div className="flex">
           {uploads.map((upload) => (
-            <div className="">
+            <div key={upload} className="">
               <img src={upload} alt="" className="w-auto h-14 rounded-md m-2" />
             </div>
           ))}

@@ -42,7 +42,7 @@ export default function NavigationCard({ userId }) {
         </span>
       </Link>
       <Link
-        className={(pathname.includes("/profile") && !pathname.includes("/friends")) ? activeElements : inactiveElements}
+        className={(pathname?.includes("/profile") && !pathname?.includes("/friends")) ? activeElements : inactiveElements}
         href={"/profile/"+ userId}
       >
         <svg
@@ -65,7 +65,7 @@ export default function NavigationCard({ userId }) {
       </Link>
       <Link
         className={
-          pathname.includes("/friends") ? activeElements : inactiveElements
+          pathname?.includes("/friends") ? activeElements : inactiveElements
         }
         href={"/profile/"+ userId+"/friends"}
       >

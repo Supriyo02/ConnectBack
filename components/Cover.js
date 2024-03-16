@@ -1,6 +1,7 @@
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useState } from "react";
 import Preloader from "./preloader";
+import { uploadUserProfileImage } from "./helpers/user";
 import { Edu_QLD_Beginner } from "next/font/google";
 
 export default function Cover({ url, editable, onChange }) {
@@ -53,7 +54,9 @@ export default function Cover({ url, editable, onChange }) {
                 d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
               />
             </svg>
-            Change Cover
+            <span className="md:block hidden">
+              Change Cover
+            </span>
           </label>
         </div>
       )}

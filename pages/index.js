@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <div>
       <Head>
-        <title>ConnectX</title>
+        <title>ConnectY</title>
         <meta name="description" content="Connecting the world with a new dimension" />
         <link rel="icon" href="/favicon.png" />
       </Head>
@@ -66,6 +66,11 @@ export default function Home() {
 
       <Layout>
         <UserContext.Provider value={{profile}}>
+        <span>
+          <h2 className="text-gray-500 font-bold text-sm pb-1 p-0 block md:hidden">
+            ConnectY:&nbsp;&nbsp;&nbsp; Developed by Supriyo with 💙
+          </h2>
+        </span>
         <PostFormCard onPost={fetchPosts}/>
         {posts?.length > 0 && posts.map(post => (
           <PostCard key={post.created_at}  {...post}/>
