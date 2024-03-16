@@ -5,12 +5,16 @@ import PostCard from "../components/postcard";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import LoginPage from "./login";
 import { useEffect, useState } from "react";
-import TimeAgo from 'javascript-time-ago';
+import TimeAgo from 'javascript-time-ago'
 
-import en from 'javascript-time-ago/locale/en';
+import en from 'javascript-time-ago/locale/en'
+import ru from 'javascript-time-ago/locale/ru'
+
+TimeAgo.addDefaultLocale(en)
+TimeAgo.addLocale(ru)
+
 import { UserContext } from "../components/contexts/UserContext";
 
-TimeAgo.addDefaultLocale(en);
 
 
 export default function Home() {
@@ -62,7 +66,7 @@ export default function Home() {
 
       <Layout>
         <UserContext.Provider value={{profile}}>
-        <PostFormCard onPost={fetchPosts} />
+        <PostFormCard onPost={fetchPosts}/>
         {posts?.length > 0 && posts.map(post => (
           <PostCard key={post.created_at}  {...post}/>
         ))}

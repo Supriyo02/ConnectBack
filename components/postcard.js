@@ -10,6 +10,7 @@ import TimeAgo from "javascript-time-ago";
 import { UserContext } from "./contexts/UserContext";
 import en from "javascript-time-ago/locale/en";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { locale } from "javascript-time-ago";
 TimeAgo.addLocale(en);
 
 export default function Postcard({
@@ -23,15 +24,32 @@ export default function Postcard({
   const [likes, setLikes] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
-  const [comments,setComments] = useState([]);
-  
+  const [comments, setComments] = useState([]);
+  const [isSaved, setIsSaved] = useState(false);
+
   const inactiveElements =
     "flex gap-2 p-2 hover:bg-blue-300 hover:bg-opacity-40 rounded-md hover:-mx-2 transition-all hover:shadow-sm hover:shadow-gray-400 hover:text-base";
   const { profile: myProfile } = useContext(UserContext);
   useEffect(() => {
     fetchLikes();
     fetchComments();
-  }, []);
+    if(myProfile?.id) fetchIsSaved();
+  }, [myProfile?.id]);
+
+  function fetchIsSaved() {
+    supabase
+      .from("saved_posts")
+      .select()
+      .eq("post_id", id)
+      .eq("user_id", myProfile?.id)
+      .then((result) => {
+        if (result.data.length > 0) {
+          setIsSaved(true);
+        } else {
+          setIsSaved(false);
+        }
+      });
+  }
 
   function fetchLikes() {
     supabase
@@ -41,14 +59,13 @@ export default function Postcard({
       .then((result) => setLikes(result.data));
   }
 
-  function fetchComments(){
-    supabase.from('posts')
-    .select('*, profiles(*)')
-    .eq('parent', id)
-    .then(result=> setComments(result.data));
+  function fetchComments() {
+    supabase
+      .from("posts")
+      .select("*, profiles(*)")
+      .eq("parent", id)
+      .then((result) => setComments(result.data));
   }
-
-  const isLikedByMe = !!likes.find((like) => like?.user_id === myProfile?.id);
 
   function toggleLike() {
     if (isLikedByMe) {
@@ -73,19 +90,46 @@ export default function Postcard({
       });
   }
 
-  function postComment(ev){
+  function postComment(ev) {
     ev.preventDefault();
-    supabase.from('posts')
-    .insert({
-      content:commentText,
-      author: myProfile.id,
-      parent: id,
-    })
-    .then(result=>{
-      fetchComments();
-      setCommentText('');
-    })
+    supabase
+      .from("posts")
+      .insert({
+        content: commentText,
+        author: myProfile.id,
+        parent: id,
+      })
+      .then((result) => {
+        fetchComments();
+        setCommentText("");
+      });
   }
+
+  function toggleSave() {
+    if(isSaved){
+      supabase.from('saved_posts')
+      .delete().eq('post_id', id)
+      .eq('user_id',myProfile?.id)
+      .then(result=>{
+        setIsSaved(false);
+        setDropdownOpen(false);
+      });
+    }
+    if(!isSaved){
+      supabase
+      .from("saved_posts")
+      .insert({
+        user_id: myProfile?.id,
+        post_id: id,
+      })
+      .then((result) => {
+        setIsSaved(true);
+        setDropdownOpen(false);
+      });
+    } 
+  }
+
+  const isLikedByMe = !!likes.find((like) => like?.user_id === myProfile?.id);
 
   return (
     <Card>
@@ -108,7 +152,7 @@ export default function Postcard({
             </a>
           </p>
           <p className="text-gray text-sm">
-            <ReactTimeAgo date={new Date(created_at).getTime()} />
+            <ReactTimeAgo date={new Date(created_at).getTime()} locale="en-US" />
           </p>
         </div>
         <div className="relative">
@@ -139,23 +183,44 @@ export default function Postcard({
             <div>
               {dropdownOpen && (
                 <div className="absolute -right-4 bg-white shadow-md shadow-gray-500 rounded-md px-1 py-2 border border-gray-300 w-44">
-                  <a href="" className={inactiveElements}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-6 h-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
-                      />
-                    </svg>
-                    Save Post
-                  </a>
+                  <button onClick={toggleSave} href="" className="w-full">
+                    <span className={inactiveElements + ` flex`}>
+                      {!isSaved && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+                          />
+                        </svg>
+                      )}
+                      {isSaved && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m3 3 1.664 1.664M21 21l-1.5-1.5m-5.485-1.242L12 17.25 4.5 21V8.742m.164-4.078a2.15 2.15 0 0 1 1.743-1.342 48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185V19.5M4.664 4.664 19.5 19.5"
+                          />
+                        </svg>
+                      )}
+
+                      {isSaved ? "Unsave" : "Save Post"}
+                    </span>
+                  </button>
                   <a href="" className={inactiveElements}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -338,24 +403,29 @@ export default function Postcard({
         </div>
       </div>
       <div className=" ml-1 md:ml-4 pb-2">
-        {comments.length>0 && comments.map(comment=>(
-          <div className="flex items-center mb-1">
-            <Avatar url={comment.profiles.avatar} size={"sm"}/>
-            <div className="bg-gray-200 px-5 py-1 rounded-3xl">
-            <div >
-              <Link  href={'/profile/'+comment.profiles.id}>
-                <span className="-mb-1 mr-1 font-semibold hover:underline">
-                {comment.profiles.name}
-                </span>
-              </Link>
-              <span className="text-sm text-gray-500">
-              <ReactTimeAgo timeStyle={'twitter'} date={(new Date(comment.created_at)).getTime()} />
-              </span>
+        {comments.length > 0 &&
+          comments.map((comment) => (
+            <div key={comment.id} className="flex items-center mb-1">
+              <Avatar url={comment.profiles.avatar} size={"sm"} />
+              <div className="bg-gray-200 px-5 py-1 rounded-3xl">
+                <div>
+                  <Link href={"/profile/" + comment.profiles.id}>
+                    <span className="-mb-1 mr-1 font-semibold hover:underline">
+                      {comment.profiles.name}
+                    </span>
+                  </Link>
+                  <span className="text-sm text-gray-500">
+                    <ReactTimeAgo
+                      timeStyle={"twitter"}
+                      date={new Date(comment.created_at).getTime()}
+                      locale="en-US"
+                    />
+                  </span>
+                </div>
+                <p className="text-sm">{comment.content}</p>
+              </div>
             </div>
-            <p className="text-sm">{comment.content}</p>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
     </Card>
   );

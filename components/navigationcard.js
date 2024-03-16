@@ -3,7 +3,7 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function NavigationCard({ children }) {
+export default function NavigationCard({ userId }) {
   const activeElements =
     "flex md:gap-3 gap-1 py-2 bg-SocialBlue text-white md:-mx-4 md:px-4 px-2 mx-2 text-sm md:text-md rounded-md shadow-md shadow-gray-400";
   const inactiveElements =
@@ -43,7 +43,7 @@ export default function NavigationCard({ children }) {
       </Link>
       <Link
         className={pathname == "/profile" ? activeElements : inactiveElements}
-        href="/profile"
+        href={"/profile/"+ userId}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
