@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { uploadUserProfileImage } from "./helpers/user";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import Preloader from "./preloader";
+import Preloader from "./Preloader";
 import { useState } from "react";
 
 export default function Avatar({ size, url, editable, onChange }) {

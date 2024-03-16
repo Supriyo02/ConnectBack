@@ -3,7 +3,7 @@ import Avatar from "./avatar";
 import { useContext, useEffect, useState } from "react";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { UserContext } from "./contexts/UserContext";
-import Preloader from "./preloader";
+import Preloader from "./Preloader";
 
 export default function PostFormCard({ onPost }) {
   const [content, setContent] = useState("");
