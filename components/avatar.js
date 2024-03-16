@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { uploadUserProfileImage } from "./helpers/user";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import Preloader from "./Preloader";
+import Preloader from "./preloader";
 import { useState } from "react";
 
 export default function Avatar({ size, url, editable, onChange }) {
@@ -24,6 +24,10 @@ export default function Avatar({ size, url, editable, onChange }) {
   }
   if (size === "sm") {
     width = "w-9";
+  }
+
+  if(!url){
+    url="https://yellowchimes.com/cdn/shop/products/71LECcYMuNL.jpg?v=1695302947"
   }
 
 

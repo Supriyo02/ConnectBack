@@ -1,6 +1,6 @@
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useState } from "react";
-import Preloader from "./Preloader";
+import Preloader from "./preloader";
 import { Edu_QLD_Beginner } from "next/font/google";
 
 export default function Cover({ url, editable, onChange }) {

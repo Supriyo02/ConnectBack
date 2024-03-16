@@ -7,7 +7,7 @@ export default function Layout({ children, hideNavigation }) {
   return (
     <div className="mt-4 max-w-5xl mx-auto gap-6 md:p-4 md:flex md:mb-0 mb-6">
       {!hideNavigation &&(
-        <div className="md:w-1/4 fixed md:static w-full bottom-0 -mb-5">
+        <div className="z-30 md:w-1/4 fixed md:static w-full bottom-0 -mb-5">
         <Card noPadding={'True'}>
           <NavigationCard userId={session?.user?.id}/>
         </Card>

@@ -10,7 +10,7 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import ru from 'javascript-time-ago/locale/ru'
 
-TimeAgo.addDefaultLocale(en)
+TimeAgo.addLocale(en)
 TimeAgo.addLocale(ru)
 
 import { UserContext } from "../components/contexts/UserContext";

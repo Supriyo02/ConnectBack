@@ -27,6 +27,7 @@ export default function ProfileContent({activeTab,userId}){
     async function userPosts(userId){
       const {data} = await supabase.from('posts')
         .select('id,content,created_at, author, photos')
+        .is('parent', null)
         .eq('author',userId);
         return data;
     }
