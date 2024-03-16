@@ -22,6 +22,10 @@ export default function Avatar({ size, url, editable, onChange }) {
   if (size === "lg") {
     width = "w-32 md:w-36";
   }
+  if (size === "sm") {
+    width = "w-9";
+  }
+
 
   return (
     <div className="p-2 relative">

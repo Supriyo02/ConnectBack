@@ -8,70 +8,107 @@ import Image from "next/image";
 import ReactTimeAgo from "react-time-ago";
 import TimeAgo from "javascript-time-ago";
 import { UserContext } from "./contexts/UserContext";
-import en from 'javascript-time-ago/locale/en';
+import en from "javascript-time-ago/locale/en";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 TimeAgo.addLocale(en);
 
-export default function Postcard ({id,content, created_at, photos, profiles:authorProfile}) {
+export default function Postcard({
+  id,
+  content,
+  created_at,
+  photos,
+  profiles: authorProfile,
+}) {
   const supabase = useSupabaseClient();
-  const [likes,setLikes] = useState([]);
+  const [likes, setLikes] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [comments,setComments] = useState([]);
+  
   const inactiveElements =
     "flex gap-2 p-2 hover:bg-blue-300 hover:bg-opacity-40 rounded-md hover:-mx-2 transition-all hover:shadow-sm hover:shadow-gray-400 hover:text-base";
-  const {profile:myProfile} = useContext(UserContext);
-  useEffect(()=>{
+  const { profile: myProfile } = useContext(UserContext);
+  useEffect(() => {
     fetchLikes();
+    fetchComments();
   }, []);
 
-  function fetchLikes(){
-    supabase.from('likes').select()
-    .eq('post_id', id)
-    .then(result=>setLikes(result.data));
+  function fetchLikes() {
+    supabase
+      .from("likes")
+      .select()
+      .eq("post_id", id)
+      .then((result) => setLikes(result.data));
   }
 
-  const isLikedByMe = !!likes.find(like=>like?.user_id === myProfile?.id);
+  function fetchComments(){
+    supabase.from('posts')
+    .select('*, profiles(*)')
+    .eq('parent', id)
+    .then(result=> setComments(result.data));
+  }
 
-  function toggleLike(){
-    if(isLikedByMe){
-      supabase.from('likes').delete()
-      .eq('post_id',id)
-      .eq('user_id',myProfile.id)
-      .then(()=>{
-        fetchLikes();
-      })
+  const isLikedByMe = !!likes.find((like) => like?.user_id === myProfile?.id);
+
+  function toggleLike() {
+    if (isLikedByMe) {
+      supabase
+        .from("likes")
+        .delete()
+        .eq("post_id", id)
+        .eq("user_id", myProfile.id)
+        .then(() => {
+          fetchLikes();
+        });
       return;
     }
-    supabase.from('likes')
-    .insert({
-      post_id: id,
-      user_id: myProfile.id,
-    })
-    .then(result=>{
-      fetchLikes();
-    })
+    supabase
+      .from("likes")
+      .insert({
+        post_id: id,
+        user_id: myProfile.id,
+      })
+      .then((result) => {
+        fetchLikes();
+      });
   }
 
+  function postComment(ev){
+    ev.preventDefault();
+    supabase.from('posts')
+    .insert({
+      content:commentText,
+      author: myProfile.id,
+      parent: id,
+    })
+    .then(result=>{
+      fetchComments();
+      setCommentText('');
+    })
+  }
 
   return (
     <Card>
       <div className="flex pt-3 px-2 items-center grow">
-        <Link href={'/profile/'+authorProfile?.id} >
-            <span className="cursor-pointer">
-          <Avatar url={authorProfile?.avatar}/>
+        <Link href={"/profile/" + authorProfile?.id}>
+          <span className="cursor-pointer">
+            <Avatar url={authorProfile?.avatar} />
           </span>
         </Link>
         <div className="grow">
           <p className="text-black-600 text-md">
-            <Link href={'/profile/'+authorProfile?.id}>
+            <Link href={"/profile/" + authorProfile?.id}>
               <span className="font-semibold hover:underline">
-              {authorProfile?.name}{" "}
+                {authorProfile?.name}{" "}
               </span>
-              </Link> 
-              shared a{" "}
-            <a href="#" className="font-semibold">post</a>
+            </Link>
+            shared a{" "}
+            <a href="#" className="font-semibold">
+              post
+            </a>
           </p>
           <p className="text-gray text-sm">
-            <ReactTimeAgo date={ (new Date (created_at)).getTime()} />
+            <ReactTimeAgo date={new Date(created_at).getTime()} />
           </p>
         </div>
         <div className="relative">
@@ -194,22 +231,20 @@ export default function Postcard ({id,content, created_at, photos, profiles:auth
         </div>
       </div>
       <div className="py-2 px-5">
-        <p className="text-sm">
-          {content}
-        </p>
+        <p className="text-sm">{content}</p>
       </div>
       <div className="px-5 py-2">
-        {photos?.length >0 && (
+        {photos?.length > 0 && (
           <div className="flex gap-4 items-center">
-          {photos.map(photo=>(
-            <div key={photo}>
-              <img
-            className="rounded-md overflow-hidden"
-            src= {photo}
-            alt=""
-          />
-            </div> 
-          ))}
+            {photos.map((photo) => (
+              <div key={photo}>
+                <img
+                  className="rounded-md overflow-hidden"
+                  src={photo}
+                  alt=""
+                />
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -221,7 +256,7 @@ export default function Postcard ({id,content, created_at, photos, profiles:auth
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className={"w-6 h-6"+ (isLikedByMe?' fill-red-500':'')}
+            className={"w-6 h-6" + (isLikedByMe ? " fill-red-500" : "")}
           >
             <path
               strokeLinecap="round"
@@ -246,7 +281,7 @@ export default function Postcard ({id,content, created_at, photos, profiles:auth
               d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
             />
           </svg>
-          33
+          {comments.length}
         </div>
         <div className="flex gap-1">
           <svg
@@ -266,14 +301,18 @@ export default function Postcard ({id,content, created_at, photos, profiles:auth
           2
         </div>
       </div>
-      <div className="flex mt-2 pb-4">
+      <div className="flex mt-2">
         <Avatar url={myProfile?.avatar} />
         <div className="flex w-full pr-3 h-12 pt-2 gap-1">
           <div className=" w-11/12">
-          <textarea
-            className="w-full rounded-full h-10 overflow-hidden border border-gray-400 block pt-1 pl-3"
-            placeholder="Leave a comment"
-          />
+            <form onSubmit={postComment}>
+              <input
+                value={commentText}
+                onChange={(ev) => setCommentText(ev.target.value)}
+                className="w-full rounded-full h-10 overflow-hidden border border-gray-400 block pl-3"
+                placeholder="Leave a comment"
+              />
+            </form>
           </div>
           <button className="right-6 top-4 w-1/12">
             <svg
@@ -298,8 +337,28 @@ export default function Postcard ({id,content, created_at, photos, profiles:auth
           </button>
         </div>
       </div>
+      <div className=" ml-1 md:ml-4 pb-2">
+        {comments.length>0 && comments.map(comment=>(
+          <div className="flex items-center mb-1">
+            <Avatar url={comment.profiles.avatar} size={"sm"}/>
+            <div className="bg-gray-200 px-5 py-1 rounded-3xl">
+            <div >
+              <Link  href={'/profile/'+comment.profiles.id}>
+                <span className="-mb-1 mr-1 font-semibold hover:underline">
+                {comment.profiles.name}
+                </span>
+              </Link>
+              <span className="text-sm text-gray-500">
+              <ReactTimeAgo timeStyle={'twitter'} date={(new Date(comment.created_at)).getTime()} />
+              </span>
+            </div>
+            <p className="text-sm">{comment.content}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </Card>
   );
-};
+}
 
 // export default Postcard;
