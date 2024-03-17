@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <div>
       <Head>
-        <title>ConnectY</title>
+        <title>ConnectX</title>
         <meta name="description" content="Connecting the world with a new dimension" />
         <link rel="icon" href="/favicon.png" />
       </Head>
@@ -68,7 +68,7 @@ export default function Home() {
         <UserContext.Provider value={{profile}}>
         <span>
           <h2 className="text-gray-500 font-bold text-sm pb-1 p-0 block md:hidden">
-            ConnectY:&nbsp;&nbsp;&nbsp; Developed by Supriyo with 💙
+            ConnectX:&nbsp;&nbsp;&nbsp; Developed by Supriyo with 💙
           </h2>
         </span>
         <PostFormCard onPost={fetchPosts}/>

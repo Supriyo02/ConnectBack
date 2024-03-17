@@ -18,7 +18,7 @@ export default function NavigationCard({ userId }) {
   
   return (
     <div className="px-2 md:py-3 py-1 flex md:block justify-between shadow-md shadow-gray-300 md:shadow-none">
-      <h2 className="text-gray-500 font-bold p-3 hidden md:block">ConnectY</h2>
+      <h2 className="text-gray-500 font-bold p-3 hidden md:block">ConnectX</h2>
       <Link
         className={pathname == "/" ? activeElements : inactiveElements}
         href="/"
