@@ -67,7 +67,7 @@ export default function Home() {
       <Layout>
         <UserContext.Provider value={{profile}}>
         <span>
-          <h2 className="text-gray-500 font-bold text-sm pb-1 p-0 block md:hidden">
+          <h2 className="text-gray-500 font-bold text-xs md:text-sm pb-1 p-0 block md:hidden">
             ConnectX:&nbsp;&nbsp;&nbsp; Developed by Supriyo with 💙
           </h2>
         </span>
