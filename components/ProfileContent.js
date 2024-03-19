@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import Card from "./card";
 import FriendInfo from "./friendinfo";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import Postcard from "./postcard";
 
 export default function ProfileContent({activeTab,userId}){
     const[posts,setPosts] = useState([]);
     const [profile,setProfile] = useState(null);
+    const [aboutt,setAboutt] = useState();
+    const[about,setAbout] = useState("");
+    const [editMode, setEditMode] = useState(false);
     const supabase = useSupabaseClient();
+    const session = useSession();
     useEffect(()=>{
         if(!userId){
             return;
@@ -15,7 +19,23 @@ export default function ProfileContent({activeTab,userId}){
         if(activeTab === 'posts'){
           loadPosts().then(()=>{});
         }
+        fetchUser();
     },[userId]);
+
+    function fetchUser() {
+      supabase
+        .from("profiles")
+        .select()
+        .eq("id", userId)
+        .then((result) => {
+          if (result.error) {
+            throw result.error;
+          }
+          if (result.data) {
+            setAboutt(result.data[0]);
+          }
+        });
+    }
 
     async function loadPosts(){
       const posts = await userPosts(userId);
@@ -38,7 +58,26 @@ export default function ProfileContent({activeTab,userId}){
       .eq('id',userId);
       return data?.[0];
     }
-    
+
+    function saveAbout() {
+      supabase
+        .from("profiles")
+        .update({
+          about,
+        })
+        .eq("id", session.user.id)
+        .then((result) => {
+          if (!result.error) {
+            setAboutt((prev) => {
+              return { ...prev, about };
+            });
+          }
+          setEditMode(false);
+        });
+    }
+
+    const isMyUser = userId === session?.user?.id;
+
     return(
         <div>
         {activeTab==='posts' && (
@@ -52,27 +91,70 @@ export default function ProfileContent({activeTab,userId}){
         <div>
           <Card>
             <div className="p-4">
-              <h2 className=" text-4xl font-semibold mb-6 text-gray-400">
+              <div className="flex mb-6 justify-between">
+              <h2 className=" text-4xl font-semibold text-gray-400">
                 About ME
               </h2>
-              <p className=" mb-2 text-sm">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </p>
-              <p className="mb-2 text-sm">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </p>
+              {isMyUser && !editMode && (
+                  <button
+                    onClick={() => {
+                      setEditMode(true);
+                      setAbout(aboutt.about);
+                    }}
+                    className=" flex gap-1 shadow-gray-400 shadow-md rounded-md px-2 py-0.5 mb-2.5"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                      />
+                    </svg>
+                    <span className="md:block hidden">
+                    Edit
+                    </span>
+                  </button>
+                )}
+                {isMyUser && editMode && (
+                  <div>
+                    <button
+                      onClick={saveAbout}
+                      className="gap-1 shadow-gray-400 shadow-md rounded-md px-1 py-0.5 mb-2.5"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditMode(false)}
+                      className="gap-1 shadow-gray-400 shadow-md rounded-md px-1 ml-1 py-0.5 mb-2.5"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  )}
+              </div>
+              {!editMode && (
+                <p className="whitespace-pre-line mb-2 text-md text-gray-800">
+                  {aboutt?.about}
+                </p>
+              )}
+              {editMode && (
+                  <div className="w-full">
+                    <textarea
+                      placeholder={"Enter your basic details:\nA suitable bio\nYour passion\nYour school/college name\nYour age\nSocial media handles\nContact info"}
+                      value={about}
+                      rows={5}
+                      className="w-full border rounded-md p-1 text-md"
+                      onChange={(ev) => setAbout(ev.target.value)}
+                    />
+                  </div>
+                )}
             </div>
           </Card>
         </div>
@@ -111,14 +193,24 @@ export default function ProfileContent({activeTab,userId}){
       {activeTab==='photos' && (
         <div>
           <Card>
-            <div className=" grid md:grid-cols-2 gap-3 md:px-3 md:py-3 px-4 py-3">
-              <div className=" rounded-sm overflow-hidden  h-36 flex items-center shadow-md">
-                <img src="https://images.unsplash.com/photo-1571679654681-ba01b9e1e117?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" />
+            {/* <div className=" grid md:grid-cols-2 gap-3 md:px-3 md:py-3 px-4 py-3"> */}
+              
+              <div className="md:px-3 md:py-3 px-4 py-3">
+                {posts.length>0 && posts.map((post)=>(
+                  <div key={post.id}>
+                    {post.photos.length>0 && post.photos.map((photo)=>(
+                      <div key={photo} className="my-2">
+                      <div className="rounded-sm overflow-hidden h-36 md:h-64 flex items-center shadow-md">
+                        <img src={photo} className="w-full"/>
+                      </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
-              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
-                <img src="https://images.unsplash.com/photo-1561909381-3d716364ad47?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8a29sa2F0YXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=900&q=60" />
-              </div>
-              <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
+
+
+              {/* <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
                 <img src="https://media.istockphoto.com/id/1179806246/photo/holi-and-durga-puja-festival-in-indian-married-and-unmarried-indian-women-playing-with.jpg?s=612x612&w=0&k=20&c=OYuG7feijVKCkwKQ-O4gFABIYg9JmgaoLUQrbHr-utU=" />
               </div>
               <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
@@ -141,8 +233,8 @@ export default function ProfileContent({activeTab,userId}){
               </div>
               <div className=" rounded-sm overflow-hidden h-36 flex items-center shadow-md">
                 <img src="https://images.unsplash.com/photo-1630880276407-7e0c38d4df24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1887&q=80" />
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
           </Card>
         </div>
       )}

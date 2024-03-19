@@ -13,7 +13,7 @@ export default function Cover({ url, editable, onChange }) {
         const file = ev.target.files?.[0];
         if(file){
           setIsUploading(true);
-          uploadUserProfileImage(supabase,session.user.id,file,'covers','cover');
+          await uploadUserProfileImage(supabase,session.user.id,file,'covers','cover');
           setIsUploading(false);
           if(onChange) onChange();
         }
