@@ -41,12 +41,7 @@ npm run dev
 * Engaging Design: Tailwind CSS provides a clean and visually appealing interface, enhancing user engagement.
 * Robust Backend: Supabase offers a scalable and secure backend, handling data management, authentication, and user privacy efficiently.
 
-## Screenshots:
-| ![](assets/scr1.jpg) | ![](assets/scr2.jpg) | ![](assets/scr3.jpg) |
-| :-------------: | :-------------: | :-------------:  |
 
-| ![](assets/scr4.jpg) | ![](assets/scr5.jpg) | ![](assets/scr6.jpg) |
-| :-------------: | :-------------: | :-------------:  |
 
 ## Technologies Used:
 ### Frontend:
