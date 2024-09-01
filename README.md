@@ -1,5 +1,5 @@
 # ConnectX (social media webapp):
-This is a [reactjs](https://react.dev/) project bootstrapped with [Nextjs](https://nextjs.org/) with backend database in [supabase](https://supabase.com/). 
+This project is a cutting-edge social media platform developed using [Nextjs](https://nextjs.org/), [reactjs](https://react.dev/), Tailwind CSS, and [Supabase](https://supabase.com/).
 ### Live site: [connectxt.vercel.app](https://connectxt.vercel.app/)
 Request once before accessing the site (The backend database may need to be reactivated as it is hosted in free tier of supabase).
 
