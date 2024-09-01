@@ -57,4 +57,4 @@ npm run dev
 - Supabase
 
 ## Contributing:
-Contributions to this project are welcome! Please feel free to fork the repository, make your changes, and submit a pull request.
+Contributions to this project are welcome as lots of real time features are yet to be implemented! Please feel free to fork the repository, make your changes, and submit a pull request.
