@@ -45,9 +45,6 @@ npm run dev
 | ![](assets/scr1.jpg) | ![](assets/scr2.jpg) | ![](assets/scr3.jpg) |
 | :-------------: | :-------------: | :-------------:  |
 
-| ![](assets/scr4.jpg) | ![](assets/scr5.jpg) | ![](assets/scr6.jpg) |
-| :-------------: | :-------------: | :-------------:  |
-
 ## Technologies Used:
 ### Frontend:
 - Next.js
