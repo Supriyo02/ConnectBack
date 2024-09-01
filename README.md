@@ -42,8 +42,7 @@ npm run dev
 * Robust Backend: Supabase offers a scalable and secure backend, handling data management, authentication, and user privacy efficiently.
 
 ## Screenshots:
-| ![](assets/scr1.jpg) | ![](assets/scr2.jpg) | ![](assets/scr3.jpg) |
-| :-------------: | :-------------: | :-------------:  |
+![img](assets/scr1.jpg)
 
 ## Technologies Used:
 ### Frontend:
