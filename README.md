@@ -3,6 +3,13 @@ This project is a cutting-edge social media platform developed using [Nextjs](ht
 ### Live site: [connectxt.vercel.app](https://connectxt.vercel.app/)
 Request once before accessing the site (The backend database may need to be reactivated as it is hosted in free tier of supabase).
 
+## Screenshots
+| ![](assets/scr1.jpg) | ![](assets/scr2.jpg) | ![](assets/scr3.jpg) |
+| :-------------: | :-------------: | :-------------:  |
+
+| ![](assets/scr4.jpg) | ![](assets/scr5.jpg) | ![](assets/scr6.jpg) |
+| :-------------: | :-------------: | :-------------:  |
+
 ## Getting Started:
 Steps to run this project:
 
@@ -40,13 +47,6 @@ npm run dev
 * High Performance: The app's Next.js framework and optimized codebase ensure fast loading times and a smooth user experience.
 * Engaging Design: Tailwind CSS provides a clean and visually appealing interface, enhancing user engagement.
 * Robust Backend: Supabase offers a scalable and secure backend, handling data management, authentication, and user privacy efficiently.
-
-## Screenshots
-| ![](assets/scr1.jpg) | ![](assets/scr2.jpg) | ![](assets/scr3.jpg) |
-| :-------------: | :-------------: | :-------------:  |
-
-| ![](assets/scr4.jpg) | ![](assets/scr5.jpg) | ![](assets/scr6.jpg) |
-| :-------------: | :-------------: | :-------------:  |
 
 ## Technologies Used:
 ### Frontend:
